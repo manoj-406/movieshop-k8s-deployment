@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: moviesvc
+  labels:
+    env: movie
+spec:
+  minReadySeconds: 5
+  replicas: 4
+  selector:
+    matchLabels:
+      env: movie
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        env: movie
+    spec:
+      containers:
+        - name: movie-svc
+          image: manoj406/movieshopbackend:v1.0
+          env:
+            - name: DATABASE_URL
+              value: postgresql://Moviedb_owner:V3IRwlMvcAn4@ep-broad-sky-a4u0t3cc.us-east-1.aws.neon.tech/Moviedb?sslmode=require
+          ports:
+            - containerPort: 8000
+          resources: 
+            requests:
+              cpu: 250m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: movie-svc
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    env: movie
